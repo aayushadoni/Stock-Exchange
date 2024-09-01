@@ -1,0 +1,26 @@
+{
+  "name": "engine",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "cross-env WITH_SNAPSHOT=true node dist/index.js",
+    "dev": "npm run build && npm run start",
+    "test": "vitest"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "@types/node": "^22.5.0",
+    "cross-env": "^7.0.3",
+    "install": "^0.13.0",
+    "npm": "^10.8.2",
+    "typescript": "^5.5.4"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "redis": "^4.7.0"
+  }
+}
