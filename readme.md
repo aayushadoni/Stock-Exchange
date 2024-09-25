@@ -4,6 +4,12 @@ This document outlines the real-time stock exchange flow, focusing on the WebSoc
 
 ---
 
+## Stock Exchange System Flow
+
+![Stock Exchange Flow](./exchange-client/public/images/StockExchange.png)
+
+---
+
 ## Client-Side Subscription Flow
 
 ### 1. User Visits a Market Page (e.g., "XYZ_INR"):
@@ -79,9 +85,3 @@ When a user places an order via the **Order API**, the following process occurs:
 ## Summary
 
 This system ensures real-time updates for both market data and order management by leveraging WebSockets and Redis Pub/Sub. The flow efficiently manages user subscriptions to markets and orders, ensuring only necessary updates are sent and tracked.
-
----
-
-## Stock Exchange System Flow
-
-![Stock Exchange Flow](./exchange-client/public/images/StockExchange.png)
