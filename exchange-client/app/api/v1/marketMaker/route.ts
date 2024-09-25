@@ -1,16 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { RedisManager } from '../../../../lib/RedisManager';
 import { CREATE_ORDER, CANCEL_ORDER, GET_OPEN_ORDERS } from '../../../../types';
-import { getServerSession } from 'next-auth';
-import { authOptions } from "../../../../lib/auth";
 import { SQLService } from '../../../../lib/sqlService';
 
 export async function POST(req: NextRequest) {
-    const session = await getServerSession(authOptions);
-
-    if (!session) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
     
     try {
         const body = await req.json();
@@ -51,11 +44,6 @@ export async function POST(req: NextRequest) {
 }
 
 export async function DELETE(req: NextRequest) {
-    const session = await getServerSession(authOptions);
-
-    if (!session) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
 
     try {
         const body = await req.json(); // Parse the JSON body
@@ -82,16 +70,11 @@ export async function DELETE(req: NextRequest) {
 
 // GET handler
 export async function GET(req: NextRequest) {
-    const session = await getServerSession(authOptions);
-
-    if (!session) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
     
     try {
         const { searchParams } = new URL(req.url);
         const market = searchParams.get('market');
-        const userId = session.user.id;
+        const userId = searchParams.get('userId');
 
         if (!market) {
             return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });

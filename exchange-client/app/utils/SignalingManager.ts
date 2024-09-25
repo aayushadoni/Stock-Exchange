@@ -11,7 +11,7 @@ export class SignalingManager {
     private initialized: boolean = false;
 
     private constructor() {
-        this.ws = new WebSocket(BASE_URL);
+        this.ws = new WebSocket(process.env.WS_URL!);
         this.bufferedMessages = [];
         this.id = 1;
         this.init();
