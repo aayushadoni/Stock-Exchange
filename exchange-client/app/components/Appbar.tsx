@@ -15,6 +15,27 @@ export const Appbar = () => {
 
     const toggleDropdown = () => setIsDropdownOpen(!isDropdownOpen);
 
+    const handleDeposit = async () => {
+        try {
+          const response = await fetch('/api/v1/onRamp', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          });
+    
+          const data = await response.json();
+    
+          if (data.url) {
+            router.push(data.url);
+          } else {
+            console.error('Error creating payment link');
+          }
+        } catch (error) {
+          console.error('Error:', error);
+        }
+      };
+
     return (
         <div className="text-white border-b border-slate-800">
             <div className="flex justify-between items-center p-2">
@@ -66,7 +87,7 @@ export const Appbar = () => {
                     )}
                     {session && (
                         <div className="ml-4">
-                            <SuccessButton onClick={() => router.push('https://buy.stripe.com/test_7sI0030Rd1lF0Xm6oo')}>Deposit</SuccessButton>
+                            <SuccessButton onClick={handleDeposit}>Deposit</SuccessButton>
                             <PrimaryButton>Withdraw</PrimaryButton>
                         </div>
                     )}

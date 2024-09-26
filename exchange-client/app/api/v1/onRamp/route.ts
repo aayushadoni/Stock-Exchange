@@ -1,45 +1,46 @@
 import Stripe from "stripe";
 import { NextResponse, NextRequest } from "next/server";
-import { RedisManager } from "../../../../lib/RedisManager";
-import { ON_RAMP } from "../../../../types";
 import { getServerSession } from 'next-auth';
 import { authOptions } from "../../../../lib/auth";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
-export async function POST(req: NextRequest) {
-
+export async function POST(req: NextRequest, res: NextResponse) {
+  
   const session = await getServerSession(authOptions);
+  
+  if (!session) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
 
-  const payload = await req.text();
-  const res = JSON.parse(payload);
-
-  const sig = req.headers.get("Stripe-Signature");
-
+  const userId = session.user.id;
+  
   try {
-    let event = stripe.webhooks.constructEvent(
-      payload,
-      sig!,
-      process.env.STRIPE_WEBHOOK_SECRET!
-    );
+    const paymentLink = await stripe.paymentLinks.create({
+      line_items: [
+        {
+            price: 'price_1PtE7YSCTStHeC5ZEiiSItwh',
+            quantity: 1,
+            adjustable_quantity: {
+              enabled: true,
+              minimum: 1000,
+              maximum: 500000,
+            },
+        },
+      ],
+      metadata: {
+        userId: userId,
+      },
+      after_completion: {
+        type: 'redirect',
+        redirect: {
+          url: 'http://localhost:3000',
+        },
+      },
+    });
 
-    if (event.type === 'payment_intent.succeeded') {
-        const paymentIntent = event.data.object as Stripe.PaymentIntent;
-        const amountReceived = paymentIntent.amount_received;
-        const txnId = paymentIntent.id
-        const response = await RedisManager.getInstance().sendAndAwait({
-            type: ON_RAMP,
-            data: {
-                amount: `&${amountReceived}`,
-                userId: session.user.id,
-                txnId: txnId
-            }
-          });
-        
-    }
-
-    return NextResponse.json({ status: "sucess", event: event.type, response: res });
-  } catch (error) {
-    return NextResponse.json({ status: "Failed", error });
+    return NextResponse.json({ url: paymentLink.url }, { status: 200 });
+  } catch (err) {
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }

@@ -1,0 +1,71 @@
+services:
+  timescaledb:
+    image: timescale/timescaledb:latest-pg12
+    container_name: timescaledb
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_DB: mydb
+      POSTGRES_PASSWORD: mysecretpassword
+    volumes:
+      - timescale-data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:latest
+    container_name: redis
+    ports:
+      - "19859:19859"
+
+  exchange-client:
+    build:
+      context: ./exchange-client
+      dockerfile: Dockerfile
+    container_name: exchange-client
+    ports:
+      - "3000:3000"
+    command: npm run dev
+    volumes:
+      - ./exchange-client:/app
+    depends_on:
+      - timescaledb
+      - redis
+
+  exchange-ws:
+    build:
+      context: ./exchange-ws
+      dockerfile: Dockerfile
+    container_name: exchange-ws
+    ports:
+      - "4000:4000"
+    command: npm run dev
+    volumes:
+      - ./exchange-ws:/app
+    depends_on:
+      - timescaledb
+      - redis
+
+  engine:
+    build:
+      context: ./engine
+      dockerfile: Dockerfile
+    container_name: engine
+    command: npm run dev
+    volumes:
+      - ./engine:/app
+    depends_on:
+      - timescaledb
+      - redis
+
+  trade-db:
+    build:
+      context: ./tradeDB
+      dockerfile: Dockerfile
+    container_name: trade-db
+    command: bash -c "npm run dev && npm run seed:db && npm run refresh:views"
+    volumes:
+      - ./tradeDB:/app
+    depends_on:
+      - timescaledb
+
+volumes:
+  timescale-data:

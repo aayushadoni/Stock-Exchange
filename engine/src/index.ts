@@ -7,7 +7,6 @@ dotenv.config();
 async function main() {
     const engine = new Engine(); 
     const redisClient = createClient({
-            password: process.env.REDIS_PASSWORD,
             socket: {
                 host: process.env.REDIS_HOST,
                 port: 19859
