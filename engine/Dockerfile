@@ -12,4 +12,4 @@ RUN npm install
 COPY . .
 
 # Start the engine service
-CMD ["npm", "run", "dev"]
+CMD npm run dev

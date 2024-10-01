@@ -12,4 +12,4 @@ RUN npm install
 COPY . .
 
 # Seed and refresh the views during startup
-CMD ["bash", "-c", "npm run dev && npm run seed:db && npm run refresh:views"]
+CMD npm run seed:db && npm run dev

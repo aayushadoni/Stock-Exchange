@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
                 return NextResponse.json({ error: 'Simulation already running' }, { status: 400 });
             }
 
-            startMarketSimulation(market, 5 * 60 * 1000);
+            startMarketSimulation({market, duration: 50000});
 
             simulationTimers[market] = setTimeout(() => {
                 delete simulationTimers[market];

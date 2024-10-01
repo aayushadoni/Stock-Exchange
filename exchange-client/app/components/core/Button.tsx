@@ -22,3 +22,11 @@ export const LoginButton = ({ children, onClick }: { children: string, onClick?:
     </button>
 
 } 
+
+export const SimulationButon = ({ children, onClick }: { children: string, onClick?: any }) => {
+    return <button onClick = {onClick} type="submit" className="w-full h-full text-center font-semibold rounded-lg focus:ring-yellow-200 focus:none focus:outline-none hover:opacity-90 disabled:opacity-80 disabled:hover:opacity-80 relative overflow-hidden text-sm px-3 py-1.5 mr-4 ">
+        <div className="absolute inset-0 bg-yellow-500 opacity-[30%]"></div>
+        <div className="flex flex-row items-center justify-center gap-4"><p className="text-yellow-500">{children}</p></div>
+    </button>
+
+} 

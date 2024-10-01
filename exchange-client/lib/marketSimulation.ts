@@ -6,7 +6,7 @@ const TOTAL_BIDS = 15;
 const TOTAL_ASKS = 15;
 const USER_COUNT = 200;
 
-export async function startMarketSimulation(market: string, duration: number) {
+export function startMarketSimulation({ market, duration } : { market: string, duration: number }) {
     const price = 1000 + Math.random() * 10;
     const simulationInterval = setInterval(async () => {
         const userId = getRandomUserId();
@@ -66,7 +66,7 @@ async function cancelOrders(openOrders: any, price: any, side: "buy" | "sell", m
     const condition = side === "buy" ? (o: any) => o.price > price || Math.random() < 0.1 
                                         : (o: any) => o.price < price || Math.random() < 0.5;
     const ordersToCancel = openOrders.filter((o: any) => o.side === side && condition(o));
-    const promises = ordersToCancel.map((o: any) => axios.delete(`${BASE_URL}/api/v1/order`, {
+    const promises = ordersToCancel.map((o: any) => axios.delete(`${BASE_URL}/api/v1/marketMaker`, {
         data: {
             orderId: o.orderId,
             market,

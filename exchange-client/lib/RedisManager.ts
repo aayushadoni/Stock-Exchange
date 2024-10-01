@@ -9,17 +9,11 @@ export class RedisManager {
 
     private constructor() {
         this.client = createClient({
-            socket: {
-                host: process.env.REDIS_HOST,
-                port: 19859
-            }
+            url: 'redis://redis:6379'
         });
         this.client.connect();
         this.publisher = createClient({
-            socket: {
-                host: process.env.REDIS_HOST,
-                port: 19859
-            }
+            url: 'redis://redis:6379'
         });
         this.publisher.connect();
     }

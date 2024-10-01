@@ -1,19 +1,45 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { PrimaryButton, SuccessButton } from "./core/Button"
+import { PrimaryButton, SuccessButton, SimulationButon } from "./core/Button"
 import { useRouter } from "next/navigation";
 import { useSession, signOut } from "next-auth/react"
 import { useState } from "react";
 import { FaUser, FaClipboardList, FaWallet, FaSignOutAlt } from 'react-icons/fa';
+import { useParams } from "next/navigation";
+import {startMarketSimulation} from "../../lib/marketSimulation"
 
 export const Appbar = () => {
     const route = usePathname();
     const router = useRouter()
+    const { market } = useParams();
+
     const { data: session } = useSession();
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
     const toggleDropdown = () => setIsDropdownOpen(!isDropdownOpen);
+
+    const handleSimulation = async (query: 'start' | 'stop', market: string) => {
+        try {
+          const response = await fetch('/api/v1/marketSimulation', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ market, query }),
+          });
+      
+          const data = await response.json();
+      
+          if (response.ok) {
+            console.log(data.message);
+          } else {
+            console.error('Error:', data.error);
+          }
+        } catch (error) {
+          console.error('Error:', error);
+        }
+      };
 
     const handleDeposit = async () => {
         try {
@@ -86,9 +112,12 @@ export const Appbar = () => {
                         </>
                     )}
                     {session && (
-                        <div className="ml-4">
+                        <div className="ml-4 flex">
                             <SuccessButton onClick={handleDeposit}>Deposit</SuccessButton>
                             <PrimaryButton>Withdraw</PrimaryButton>
+                            {
+                               route.startsWith('/trade') ? <SimulationButon  onClick={() => handleSimulation('start', market as string)}>Market</SimulationButon> : <></>
+                            }
                         </div>
                     )}
                 </div>

@@ -10,12 +10,25 @@ const pgClient = new Client({
 });
 pgClient.connect();
 
+const pricesTable = ['TATA_INR', 'NVIDIA_INR', 'RELIANCE_INR', 'ICICI_INR', 'HDFC_INR', 'AIRTEL_INR', 'DELL_INR', 'HCL_INR', 'HP_INR', 'TCS_INR'];
+
+async function refreshViews() {
+    try {
+        await Promise.all(
+            pricesTable.map(async (table) => {
+                await pgClient.query(`REFRESH MATERIALIZED VIEW ${table}_klines_1m`);
+                await pgClient.query(`REFRESH MATERIALIZED VIEW ${table}_klines_1h`);
+                await pgClient.query(`REFRESH MATERIALIZED VIEW ${table}_klines_1w`);
+            })
+        );
+    } catch (error) {
+        console.error('Error refreshing views:', error);
+    }
+}
+
 async function main() {
     const redisClient = createClient({
-        socket: {
-            host: process.env.REDIS_HOST,
-            port: 19859
-        }
+        url: 'redis://redis:6379'
     });
     await redisClient.connect();
     console.log("connected to redis");
@@ -35,6 +48,7 @@ async function main() {
                 const query = `INSERT INTO ${data.data.market} (time, price, volume, currency_code) VALUES ($1, $2, $3, $4)`;
                 const values = [timestamp, price, quantity, 'INR'];
                 await pgClient.query(query, values);
+                await refreshViews();
             } else if (data.type === "BALANCE_UPDATE") {
                 console.log("updating balance data");
                 console.log(data);
@@ -72,7 +86,8 @@ async function main() {
                 const values = [orderId];
                 await pgClient.query(query, values);
             }
-        } 
+        }
+
     }
 
 }

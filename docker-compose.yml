@@ -3,7 +3,7 @@ services:
     image: timescale/timescaledb:latest-pg12
     container_name: timescaledb
     ports:
-      - "5433:5432"
+      - "5432:5432"
     environment:
       POSTGRES_DB: mydb
       POSTGRES_PASSWORD: mysecretpassword
@@ -14,7 +14,7 @@ services:
     image: redis:latest
     container_name: redis
     ports:
-      - "19859:19859"
+      - "6379:6379"
 
   exchange-client:
     build:
@@ -23,12 +23,20 @@ services:
     container_name: exchange-client
     ports:
       - "3000:3000"
-    command: npm run dev
+    command: bash -c "npm run build && npm run start"
     volumes:
       - ./exchange-client:/app
     depends_on:
       - timescaledb
       - redis
+    environment:
+      DATABASE_URL: postgresql://postgres:mysecretpassword@timescaledb:5432/mydb?schema=public
+      NEXT_PUBLIC_STRIPE_PUBLIC_KEY: pk_test_51PtE5PSCTStHeC5ZNOo1nC3emdfxbsVbOdD9h8hkyyEyMUoFRdAaCTl6jxIYMcFEWMtcoSidMg0sXb8heSl93lLH00kTPep5WO
+      STRIPE_SECRET_KEY: sk_test_51PtE5PSCTStHeC5ZIxMlPuvHkyZvxIQW9c9z3AtGN4dwGd2lZ6VRpqHoVRlqWysxBfXwQShtzLa6tnMX4TCCNub700G9ZeEW6P
+      STRIPE_WEBHOOK_SECRET: whsec_ca633f4ae09b3bc0ecd4f164d6ef0aaa0ff0c09019344a02e7dbecf43d7a056b
+      REDIS_PASSWORD: nc1H0I1Wu2qYohCJ7uvIjdUjrIgqHfwz
+      REDIS_HOST: redis
+      WS_URL: ws://localhost:4000
 
   exchange-ws:
     build:
@@ -43,6 +51,9 @@ services:
     depends_on:
       - timescaledb
       - redis
+    environment:
+      DATABASE_URL: postgresql://postgres:mysecretpassword@timescaledb:5432/mydb?schema=public
+      REDIS_HOST: redis
 
   engine:
     build:
@@ -55,17 +66,23 @@ services:
     depends_on:
       - timescaledb
       - redis
+    environment:
+      DATABASE_URL: postgresql://postgres:mysecretpassword@timescaledb:5432/mydb?schema=public
+      REDIS_HOST: redis
 
   trade-db:
     build:
       context: ./tradeDB
       dockerfile: Dockerfile
     container_name: trade-db
-    command: bash -c "npm run dev && npm run seed:db && npm run refresh:views"
+    command: npm run dev
     volumes:
       - ./tradeDB:/app
     depends_on:
       - timescaledb
+    environment:
+      DATABASE_URL: postgresql://postgres:mysecretpassword@timescaledb:5432/mydb?schema=public
+      REDIS_HOST: redis
 
 volumes:
   timescale-data:

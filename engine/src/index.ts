@@ -7,10 +7,7 @@ dotenv.config();
 async function main() {
     const engine = new Engine(); 
     const redisClient = createClient({
-            socket: {
-                host: process.env.REDIS_HOST,
-                port: 19859
-            }
+            url: 'redis://redis:6379'
         });
     await redisClient.connect();
     console.log("connected to redis");

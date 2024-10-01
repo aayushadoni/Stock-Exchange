@@ -12,10 +12,7 @@ export class SubscriptionManager {
 
     private constructor() {
         this.redisClient = createClient({
-            socket: {
-                host: process.env.REDIS_HOST,
-                port: 19859
-            }
+            url: 'redis://redis:6379'
         });
         this.redisClient.connect();
     }
